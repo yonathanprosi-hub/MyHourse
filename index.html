@@ -3,273 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Hours.IO</title>
+    <title>WorkHours Pro</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Hours">
+    <meta name="apple-mobile-web-app-title" content="WorkHours">
     
     <style>
         :root {
-            --bg: #050505;
-            --surface: #121214;
-            --surface-secondary: #1a1a1e;
-            --border: rgba(255, 255, 255, 0.04);
-            --text: #ffffff;
-            --text-muted: #6e6e73;
-            
-            --neon-blue: #007aff;
-            --neon-green: #30d158;
-            --neon-red: #ff453a;
-            
-            --glow-blue: rgba(0, 122, 255, 0.15);
-            --glow-green: rgba(48, 209, 88, 0.1);
-            --glow-red: rgba(255, 69, 58, 0.1);
+            --bg-color: #f5f5f7;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --card-border: rgba(255, 255, 255, 0.4);
+            --text-color: #1d1d1f;
+            --text-secondary: #86868b;
+            --primary: #0071e3;
+            --primary-light: rgba(0, 113, 227, 0.1);
+            --success: #34c759;
+            --success-light: rgba(52, 199, 89, 0.1);
+            --danger: #ff3b30;
+            --danger-light: rgba(255, 59, 48, 0.1);
+            --warning: #ff9500;
+            --blur: blur(20px);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #000000;
+                --card-bg: rgba(28, 28, 30, 0.7);
+                --card-border: rgba(255, 255, 255, 0.05);
+                --text-color: #f5f5f7;
+                --text-secondary: #86868b;
+                --primary: #2997ff;
+                --primary-light: rgba(41, 151, 255, 0.15);
+                --success: #30d158;
+                --success-light: rgba(48, 209, 88, 0.15);
+                --danger: #ff453a;
+                --danger-light: rgba(255, 69, 58, 0.15);
+                --warning: #ff9f0a;
+            }
         }
 
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
-            padding: calc(50px + env(safe-area-inset-top)) 24px calc(180px + env(safe-area-inset-bottom)) 24px;
+            padding: calc(40px + env(safe-area-inset-top)) 20px calc(160px + env(safe-area-inset-bottom)) 20px;
+            letter-spacing: -0.015em;
+        }
+
+        h2, h3 { 
+            margin-top: 0; 
+            font-weight: 700; 
             letter-spacing: -0.02em;
         }
-
-        /* Typography */
-        h2 { font-size: 32px; font-weight: 800; margin: 0 0 4px 0; letter-spacing: -0.03em; }
-        .subtitle { color: var(--text-muted); font-size: 15px; margin-bottom: 32px; font-weight: 500; }
-        h3 { font-size: 18px; font-weight: 700; margin: 0 0 20px 0; color: #f5f5f7; }
+        h2 { font-size: 26px; margin-bottom: 20px; }
+        h3 { font-size: 18px; margin-bottom: 16px; color: var(--text-color); }
         
-        .section-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 24px;
-            margin-bottom: 24px;
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
-        /* Action Buttons */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-
-        .btn-main {
+        .btn {
+            background-color: var(--primary);
+            color: white;
             border: none;
-            border-radius: 18px;
-            padding: 20px;
+            border-radius: 14px;
+            padding: 16px;
             font-size: 16px;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
         }
-        .btn-main:active { transform: scale(0.95); opacity: 0.9; }
-        
-        .btn-in { background: var(--neon-blue); color: #fff; box-shadow: 0 8px 24px var(--glow-blue); }
-        .btn-out { background: var(--surface-secondary); color: #fff; border: 1px solid rgba(255,255,255,0.05); }
-        
-        .btn-sub {
-            background: var(--surface-secondary);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+        .btn:active { 
+            transform: scale(0.97);
+            opacity: 0.9;
         }
-        .btn-sub:active { color: var(--text); background: rgba(255,255,255,0.05); }
-
-        /* Status Banner */
-        #today-status {
-            text-align: center;
-            margin-top: 18px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-            background: rgba(255,255,255,0.02);
-            padding: 10px;
-            border-radius: 12px;
+        .btn-success { background-color: var(--success); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-secondary { 
+            background-color: var(--primary-light); 
+            color: var(--primary); 
         }
 
-        /* Sexy Inputs */
-        .input-group { margin-bottom: 20px; }
-        .input-group:last-child { margin-bottom: 0; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+        .input-group { margin-bottom: 16px; }
         .input-group label { 
             display: block; 
-            font-size: 11px; 
-            font-weight: 700;
-            color: var(--text-muted); 
-            margin-bottom: 8px; 
+            font-size: 13px; 
+            font-weight: 500;
+            color: var(--text-secondary); 
+            margin-bottom: 6px; 
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.05em;
         }
         .input-group input {
             width: 100%; 
-            padding: 16px; 
-            border: 1px solid var(--border);
-            border-radius: 16px; 
-            background: #000000; 
-            color: var(--text); 
+            padding: 14px; 
+            border: 1px solid var(--card-border);
+            border-radius: 12px; 
+            background: rgba(0, 0, 0, 0.03); 
+            color: var(--text-color); 
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 500;
             outline: none;
-            transition: all 0.2s;
+            transition: border-color 0.2s;
         }
-        .input-group input:focus { border-color: var(--neon-blue); box-shadow: 0 0 12px var(--glow-blue); }
-
-        .btn-action {
-            background: #ffffff;
-            color: #000000;
-            border: none;
-            border-radius: 16px;
-            padding: 16px;
-            font-size: 15px;
-            font-weight: 700;
-            width: 100%;
-            cursor: pointer;
+        @media (prefers-color-scheme: dark) {
+            .input-group input { background: rgba(255, 255, 255, 0.05); }
         }
+        .input-group input:focus { border-color: var(--primary); }
 
-        /* Floating Futuristic Dashboard */
-        .floating-dash {
+        /* Floating Dashboard */
+        .footer-dashboard {
             position: fixed; 
-            bottom: calc(20px + env(safe-area-inset-bottom)); 
-            left: 20px; 
-            right: 20px;
-            background: rgba(18, 18, 20, 0.85);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 28px;
-            padding: 20px;
+            bottom: calc(16px + env(safe-area-inset-bottom)); 
+            left: 16px; 
+            right: 16px;
+            background: var(--card-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 16px;
             display: grid; 
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px; 
+            text-align: center; 
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
         }
-        .dash-item { text-align: center; }
-        .dash-item .val { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-        .dash-item .lbl { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
-        
-        .dash-fullrow {
-            grid-column: span 3;
-            border-top: 1px solid rgba(255,255,255,0.06);
-            padding-top: 16px;
-            margin-top: 4px;
+        .dash-item {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            justify-content: center;
         }
-        .dash-fullrow .lbl { font-size: 13px; font-weight: 700; color: #fff; }
-        .dash-fullrow .val { font-size: 24px; font-weight: 900; color: var(--neon-blue); text-shadow: 0 0 20px var(--glow-blue); }
+        .dash-item .val { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+        .dash-item .lbl { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
 
-        /* Modern History Logs */
+        /* History list */
         .history-item {
             display: flex; 
             justify-content: space-between; 
             align-items: center;
-            padding: 16px 0; 
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            padding: 14px 0; 
+            border-bottom: 1px solid var(--card-border);
+            font-size: 15px;
         }
         .history-item:last-child { border-bottom: none; }
-        .history-date { font-weight: 700; font-size: 15px; }
-        .history-time { color: var(--text-muted); font-size: 13px; margin-top: 4px; font-weight: 500; }
+        .history-date { font-weight: 600; }
+        .history-time { color: var(--text-secondary); font-size: 13px; margin-top: 2px; }
         
         .badge {
             font-size: 12px; 
-            font-weight: 700;
-            padding: 6px 12px; 
-            border-radius: 10px; 
+            font-weight: 600;
+            padding: 4px 10px; 
+            border-radius: 8px; 
+            display: inline-block;
         }
-        .badge-extra { background: var(--glow-green); color: var(--neon-green); }
-        .badge-deficit { background: var(--glow-red); color: var(--neon-red); }
-        .badge-special { background: var(--glow-blue); color: var(--neon-blue); }
+        .badge-extra { background-color: var(--success-light); color: var(--success); }
+        .badge-deficit { background-color: var(--danger-light); color: var(--danger); }
+        .badge-special { background-color: var(--primary-light); color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <h2 id="current-date">Overview</h2>
-    <div class="subtitle">Track your daily shift metrics</div>
-
-    <div class="section-card">
+    <div class="card">
+        <h2 id="current-date">Today</h2>
         <div class="grid-2">
-            <button class="btn-main btn-in" onclick="logAction('in')">
-                <span style="font-size: 20px;">⏱️</span>
-                <span>Check In</span>
-            </button>
-            <button class="btn-main btn-out" onclick="logAction('out')">
-                <span style="font-size: 20px;">🛑</span>
-                <span>Check Out</span>
-            </button>
+            <button class="btn btn-success" onclick="logAction('in')">☀️ Check In</button>
+            <button class="btn btn-danger" onclick="logAction('out')">🌙 Check Out</button>
         </div>
         <div class="grid-2">
-            <button class="btn-sub" onclick="logSpecial('Vacation')">🌴 Vacation</button>
-            <button class="btn-sub" onclick="logSpecial('Sick Leave')">🤒 Sick</button>
+            <button class="btn btn-secondary" onclick="logSpecial('Vacation')">🌴 Vacation</button>
+            <button class="btn btn-secondary" onclick="logSpecial('Sick Leave')">🤒 Sick Leave</button>
         </div>
-        <div id="today-status">No active shift recorded today</div>
+        <div id="today-status" style="text-align: center; margin-top: 14px; font-weight: 600; font-size: 15px; color: var(--primary);"></div>
     </div>
 
-    <div class="section-card">
-        <h3>Adjust Entry</h3>
+    <div class="card">
+        <h3>Manual Adjustment</h3>
         <div class="input-group">
-            <label>Date</label>
+            <label>Select Date</label>
             <input type="date" id="edit-date">
         </div>
         <div class="grid-2">
             <div class="input-group">
-                <label>In</label>
+                <label>Check In</label>
                 <input type="time" id="edit-in">
             </div>
             <div class="input-group">
-                <label>Out</label>
+                <label>Check Out</label>
                 <input type="time" id="edit-out">
             </div>
         </div>
-        <button class="btn-action" onclick="saveManual()">Save Changes</button>
+        <button class="btn" onclick="saveManual()">Save Entry</button>
     </div>
 
-    <div class="section-card">
-        <h3>Parameters</h3>
-        <div class="input-group">
-            <label>Base Monthly Salary (₪)</label>
-            <input type="number" id="cfg-base-salary" value="15000" onchange="saveConfig()">
-        </div>
-        <div class="input-group">
-            <label>Daily Travel Allowance (₪)</label>
-            <input type="number" id="cfg-travel" value="25" onchange="saveConfig()">
+    <div class="card">
+        <h3>Base Configuration</h3>
+        <div class="grid-2">
+            <div class="input-group">
+                <label>Base Salary (₪)</label>
+                <input type="number" id="cfg-base-salary" value="15000" onchange="saveConfig()">
+            </div>
+            <div class="input-group">
+                <label>Daily Travel allowance (₪)</label>
+                <input type="number" id="cfg-travel" value="25" onchange="saveConfig()">
+            </div>
         </div>
     </div>
 
-    <div class="section-card">
-        <h3>Activity Log</h3>
+    <div class="card">
+        <h3>Log Overview</h3>
         <div id="history-list"></div>
     </div>
 
-    <div class="floating-dash">
+    <div class="footer-dashboard">
         <div class="dash-item">
             <div class="val" id="dash-normal">0</div>
-            <div class="lbl">Regular</div>
+            <div class="lbl">Regular (h)</div>
         </div>
-        <div class="dash-item" style="color: var(--neon-green);">
+        <div class="dash-item text-success">
             <div class="val" id="dash-extra">0</div>
-            <div class="lbl">Overtime</div>
+            <div class="lbl">Overtime (h)</div>
         </div>
-        <div class="dash-item" style="color: var(--neon-red);">
+        <div class="dash-item text-danger">
             <div class="val" id="dash-deficit">0</div>
-            <div class="lbl">Deficit</div>
+            <div class="lbl">Deficit (h)</div>
         </div>
-        <div class="dash-fullrow">
-            <div class="lbl">ESTIMATED GROSS</div>
-            <div class="val" id="dash-gross">₪0</div>
+        <div class="dash-item" style="border-left: 1px solid var(--card-border); padding-left: 8px;">
+            <div class="val" id="dash-gross" style="color: var(--primary); font-size: 18px;">₪0</div>
+            <div class="lbl">Est. Gross</div>
         </div>
     </div>
 
@@ -278,6 +261,7 @@
         let db = JSON.parse(localStorage.getItem('work_hours_db')) || {};
         let config = JSON.parse(localStorage.getItem('work_hours_cfg')) || { baseSalary: 15000, travel: 25 };
 
+        // UI Initialization
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' });
         document.getElementById('edit-date').value = new Date().toISOString().split('T')[0];
         document.getElementById('cfg-base-salary').value = config.baseSalary;
@@ -299,6 +283,7 @@
             const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
             
             if (!db[today]) db[today] = { in: '', out: '', type: 'Work' };
+            
             db[today][type] = now;
             db[today].type = 'Work';
             
@@ -319,12 +304,13 @@
             const date = document.getElementById('edit-date').value;
             const timeIn = document.getElementById('edit-in').value;
             const timeOut = document.getElementById('edit-out').value;
+            
             if(!date) return;
             
             db[date] = { in: timeIn, out: timeOut, type: 'Work' };
             localStorage.setItem('work_hours_db', JSON.stringify(db));
             calculateMonth();
-            alert('Entry updated.');
+            alert('Saved successfully!');
         }
 
         function updateTodayStatus() {
@@ -332,7 +318,7 @@
             const statusDiv = document.getElementById('today-status');
             if (today) {
                 if (today.type !== 'Work') {
-                    statusDiv.innerHTML = `Today: <span style="color:var(--neon-blue)">${today.type}</span>`;
+                    statusDiv.innerHTML = `Status: <span style="color:var(--primary)">${today.type}</span>`;
                 } else {
                     statusDiv.innerHTML = `In: ${today.in || '--:--'}  |  Out: ${today.out || '--:--'}`;
                 }
@@ -346,7 +332,12 @@
         }
 
         function calculateMonth() {
-            let totalNormal = 0, totalExtra125 = 0, totalExtra150 = 0, totalDeficit = 0, workingDaysCount = 0;
+            let totalNormal = 0;
+            let totalExtra125 = 0;
+            let totalExtra150 = 0;
+            let totalDeficit = 0;
+            let workingDaysCount = 0;
+
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
 
@@ -355,7 +346,8 @@
             sortedDates.forEach(date => {
                 const dayData = db[date];
                 let dayNormal = 0, dayExtra125 = 0, dayExtra150 = 0, dayDeficit = 0;
-                let displayTime = '', badgeHTML = '';
+                let displayTime = '';
+                let badgeHTML = '';
 
                 if (dayData.type === 'Vacation' || dayData.type === 'Sick Leave') {
                     dayNormal = STANDARD_HOURS;
@@ -403,6 +395,7 @@
             const extraPay = (totalExtra125 * hourlyRate * 1.25) + (totalExtra150 * hourlyRate * 1.5);
             const deficitDeduction = totalDeficit * hourlyRate;
             const travelPay = workingDaysCount * config.travel;
+            
             const estimatedGross = config.baseSalary + extraPay - deficitDeduction + travelPay;
 
             document.getElementById('dash-normal').innerText = totalNormal.toFixed(1);
