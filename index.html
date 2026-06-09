@@ -1,191 +1,258 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>מעקב שעות עבודה</title>
+    <title>WorkHours Pro</title>
     
-    <!-- PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="שעות עבודה">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WorkHours">
     
     <style>
         :root {
-            --bg-color: #f2f2f7;
-            --card-bg: #ffffff;
-            --text-color: #1c1c1e;
-            --text-secondary: #8e8e93;
-            --primary: #007aff;
+            --bg-color: #f5f5f7;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --card-border: rgba(255, 255, 255, 0.4);
+            --text-color: #1d1d1f;
+            --text-secondary: #86868b;
+            --primary: #0071e3;
+            --primary-light: rgba(0, 113, 227, 0.1);
             --success: #34c759;
+            --success-light: rgba(52, 199, 89, 0.1);
             --danger: #ff3b30;
+            --danger-light: rgba(255, 59, 48, 0.1);
             --warning: #ff9500;
-            --border: #e5e5ea;
+            --blur: blur(20px);
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg-color: #000000;
-                --card-bg: #1c1c1e;
-                --text-color: #ffffff;
-                --text-secondary: #8e8e93;
-                --primary: #0a84ff;
+                --card-bg: rgba(28, 28, 30, 0.7);
+                --card-border: rgba(255, 255, 255, 0.05);
+                --text-color: #f5f5f7;
+                --text-secondary: #86868b;
+                --primary: #2997ff;
+                --primary-light: rgba(41, 151, 255, 0.15);
                 --success: #30d158;
+                --success-light: rgba(48, 209, 88, 0.15);
                 --danger: #ff453a;
+                --danger-light: rgba(255, 69, 58, 0.15);
                 --warning: #ff9f0a;
-                --border: #38383a;
             }
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px 16px 140px 16px;
-            direction: rtl;
+            padding: calc(40px + env(safe-area-inset-top)) 20px calc(160px + env(safe-area-inset-bottom)) 20px;
+            letter-spacing: -0.015em;
         }
 
-        h2, h3 { margin-top: 0; font-weight: 600; }
+        h2, h3 { 
+            margin-top: 0; 
+            font-weight: 700; 
+            letter-spacing: -0.02em;
+        }
+        h2 { font-size: 26px; margin-bottom: 20px; }
+        h3 { font-size: 18px; margin-bottom: 16px; color: var(--text-color); }
         
         .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            background: var(--card-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
         .btn {
             background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
+            border-radius: 14px;
+            padding: 16px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            transition: opacity 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .btn:active { opacity: 0.7; }
+        .btn:active { 
+            transform: scale(0.97);
+            opacity: 0.9;
+        }
         .btn-success { background-color: var(--success); }
         .btn-danger { background-color: var(--danger); }
-        .btn-secondary { background-color: var(--text-secondary); color: white; }
+        .btn-secondary { 
+            background-color: var(--primary-light); 
+            color: var(--primary); 
+        }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { 
+            display: block; 
+            font-size: 13px; 
+            font-weight: 500;
+            color: var(--text-secondary); 
+            margin-bottom: 6px; 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
         .input-group input {
-            width: 100%; padding: 10px; border: 1px solid var(--border);
-            border-radius: 8px; background: var(--bg-color); color: var(--text-color); font-size: 16px;
+            width: 100%; 
+            padding: 14px; 
+            border: 1px solid var(--card-border);
+            border-radius: 12px; 
+            background: rgba(0, 0, 0, 0.03); 
+            color: var(--text-color); 
+            font-size: 16px;
+            font-weight: 500;
+            outline: none;
+            transition: border-color 0.2s;
         }
+        @media (prefers-color-scheme: dark) {
+            .input-group input { background: rgba(255, 255, 255, 0.05); }
+        }
+        .input-group input:focus { border-color: var(--primary); }
 
-        /* Dashboard Footer */
+        /* Floating Dashboard */
         .footer-dashboard {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background-color: var(--card-bg);
-            border-top: 1px solid var(--border);
-            padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom));
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 8px; text-align: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            position: fixed; 
+            bottom: calc(16px + env(safe-area-inset-bottom)); 
+            left: 16px; 
+            right: 16px;
+            background: var(--card-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 16px;
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px; 
+            text-align: center; 
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
         }
-        .dash-item .val { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
-        .dash-item .lbl { font-size: 11px; color: var(--text-secondary); }
+        .dash-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .dash-item .val { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+        .dash-item .lbl { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
         .text-success { color: var(--success); }
         .text-danger { color: var(--danger); }
 
         /* History list */
         .history-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid var(--border);
-            font-size: 14px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 14px 0; 
+            border-bottom: 1px solid var(--card-border);
+            font-size: 15px;
         }
         .history-item:last-child { border-bottom: none; }
-        .history-tags span {
-            font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-right: 4px; color: white;
+        .history-date { font-weight: 600; }
+        .history-time { color: var(--text-secondary); font-size: 13px; margin-top: 2px; }
+        
+        .badge {
+            font-size: 12px; 
+            font-weight: 600;
+            padding: 4px 10px; 
+            border-radius: 8px; 
+            display: inline-block;
         }
-        .tag-normal { background-color: var(--primary); }
-        .tag-extra { background-color: var(--success); }
-        .tag-def { background-color: var(--danger); }
+        .badge-extra { background-color: var(--success-light); color: var(--success); }
+        .badge-deficit { background-color: var(--danger-light); color: var(--danger); }
+        .badge-special { background-color: var(--primary-light); color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <!-- מסך ראשי: דיווח נוכחי -->
     <div class="card">
-        <h2 id="current-date">היום שלי</h2>
+        <h2 id="current-date">Today</h2>
         <div class="grid-2">
-            <button class="btn btn-success" onclick="logAction('in')">📥 נכנסתי</button>
-            <button class="btn btn-danger" onclick="logAction('out')">📤 יצאתי</button>
+            <button class="btn btn-success" onclick="logAction('in')">☀️ Check In</button>
+            <button class="btn btn-danger" onclick="logAction('out')">🌙 Check Out</button>
         </div>
         <div class="grid-2">
-            <button class="btn btn-secondary" onclick="logSpecial('חופש')">🌴 יום חופש</button>
-            <button class="btn btn-secondary" onclick="logSpecial('מחלה')">🤒 יום מחלה</button>
+            <button class="btn btn-secondary" onclick="logSpecial('Vacation')">🌴 Vacation</button>
+            <button class="btn btn-secondary" onclick="logSpecial('Sick Leave')">🤒 Sick Leave</button>
         </div>
-        <div id="today-status" style="text-align: center; margin-top: 10px; font-weight: 500;"></div>
+        <div id="today-status" style="text-align: center; margin-top: 14px; font-weight: 600; font-size: 15px; color: var(--primary);"></div>
     </div>
 
-    <!-- עריכה ידנית / בדיעבד -->
     <div class="card">
-        <h3>עדכון ידני / שינוי שעות</h3>
+        <h3>Manual Adjustment</h3>
         <div class="input-group">
-            <label>בחר תאריך</label>
+            <label>Select Date</label>
             <input type="date" id="edit-date">
         </div>
         <div class="grid-2">
             <div class="input-group">
-                <label>שעת כניסה</label>
+                <label>Check In</label>
                 <input type="time" id="edit-in">
             </div>
             <div class="input-group">
-                <label>שעת יציאה</label>
+                <label>Check Out</label>
                 <input type="time" id="edit-out">
             </div>
         </div>
-        <button class="btn" onclick="saveManual()">שמור עדכון</button>
+        <button class="btn" onclick="saveManual()">Save Entry</button>
     </div>
 
-    <!-- הגדרות שכר -->
     <div class="card">
-        <h3>הגדרות בסיס</h3>
+        <h3>Base Configuration</h3>
         <div class="grid-2">
             <div class="input-group">
-                <label>שכר בסיס חודשי (₪)</label>
+                <label>Base Salary (₪)</label>
                 <input type="number" id="cfg-base-salary" value="15000" onchange="saveConfig()">
             </div>
             <div class="input-group">
-                <label>נסיעות ליום עבודה (₪)</label>
+                <label>Daily Travel allowance (₪)</label>
                 <input type="number" id="cfg-travel" value="25" onchange="saveConfig()">
             </div>
         </div>
     </div>
 
-    <!-- היסטוריית החודש הנוכחי -->
-    <div class="card" style="margin-bottom: 40px;">
-        <h3>פירוט ימים השבוע/החודש</h3>
+    <div class="card">
+        <h3>Log Overview</h3>
         <div id="history-list"></div>
     </div>
 
-    <!-- דשבורד תחתון קבוע -->
     <div class="footer-dashboard">
         <div class="dash-item">
             <div class="val" id="dash-normal">0</div>
-            <div class="lbl">רגילות (ש')</div>
+            <div class="lbl">Regular (h)</div>
         </div>
         <div class="dash-item text-success">
             <div class="val" id="dash-extra">0</div>
-            <div class="lbl">נוספות (ש')</div>
+            <div class="lbl">Overtime (h)</div>
         </div>
         <div class="dash-item text-danger">
             <div class="val" id="dash-deficit">0</div>
-            <div class="lbl">חוסר (ש')</div>
+            <div class="lbl">Deficit (h)</div>
         </div>
-        <div class="dash-item" style="border-right: 1px solid var(--border);">
-            <div class="val" id="dash-gross" style="color: var(--primary);">₪0</div>
-            <div class="lbl">ברוטו משוער</div>
+        <div class="dash-item" style="border-left: 1px solid var(--card-border); padding-left: 8px;">
+            <div class="val" id="dash-gross" style="color: var(--primary); font-size: 18px;">₪0</div>
+            <div class="lbl">Est. Gross</div>
         </div>
     </div>
 
@@ -194,8 +261,8 @@
         let db = JSON.parse(localStorage.getItem('work_hours_db')) || {};
         let config = JSON.parse(localStorage.getItem('work_hours_cfg')) || { baseSalary: 15000, travel: 25 };
 
-        // אתחול תצוגה
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'numeric' });
+        // UI Initialization
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' });
         document.getElementById('edit-date').value = new Date().toISOString().split('T')[0];
         document.getElementById('cfg-base-salary').value = config.baseSalary;
         document.getElementById('cfg-travel').value = config.travel;
@@ -213,12 +280,12 @@
 
         function logAction(type) {
             const today = getTodayKey();
-            const now = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', hour12: false });
+            const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
             
-            if (!db[today]) db[today] = { in: '', out: '', type: 'עבודה' };
+            if (!db[today]) db[today] = { in: '', out: '', type: 'Work' };
             
             db[today][type] = now;
-            db[today].type = 'עבודה';
+            db[today].type = 'Work';
             
             localStorage.setItem('work_hours_db', JSON.stringify(db));
             updateTodayStatus();
@@ -227,7 +294,7 @@
 
         function logSpecial(statusType) {
             const today = getTodayKey();
-            db[today] = { in: '00:00', out: '00:00', type: statusType }; // מקבל יום מלא אוטומטית בלי חישוב שעות רגיל
+            db[today] = { in: '00:00', out: '00:00', type: statusType };
             localStorage.setItem('work_hours_db', JSON.stringify(db));
             updateTodayStatus();
             calculateMonth();
@@ -240,20 +307,20 @@
             
             if(!date) return;
             
-            db[date] = { in: timeIn, out: timeOut, type: 'עבודה' };
+            db[date] = { in: timeIn, out: timeOut, type: 'Work' };
             localStorage.setItem('work_hours_db', JSON.stringify(db));
             calculateMonth();
-            alert('הנתונים נשמרו בהצלחה');
+            alert('Saved successfully!');
         }
 
         function updateTodayStatus() {
             const today = db[getTodayKey()];
             const statusDiv = document.getElementById('today-status');
             if (today) {
-                if (today.type !== 'עבודה') {
-                    statusDiv.innerHTML = `היום סומן כ: <span style="color:var(--primary)">${today.type}</span>`;
+                if (today.type !== 'Work') {
+                    statusDiv.innerHTML = `Status: <span style="color:var(--primary)">${today.type}</span>`;
                 } else {
-                    statusDiv.innerHTML = `כניסה: ${today.in || '--:--'} | יציאה: ${today.out || '--:--'}`;
+                    statusDiv.innerHTML = `In: ${today.in || '--:--'}  |  Out: ${today.out || '--:--'}`;
                 }
             }
         }
@@ -274,21 +341,22 @@
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
 
-            // מיון תאריכים מהחדש לישן
             const sortedDates = Object.keys(db).sort((a,b) => new Date(b) - new Date(a));
 
             sortedDates.forEach(date => {
                 const dayData = db[date];
                 let dayNormal = 0, dayExtra125 = 0, dayExtra150 = 0, dayDeficit = 0;
                 let displayTime = '';
+                let badgeHTML = '';
 
-                if (dayData.type === 'חופש' || dayData.type === 'מחלה') {
+                if (dayData.type === 'Vacation' || dayData.type === 'Sick Leave') {
                     dayNormal = STANDARD_HOURS;
                     displayTime = dayData.type;
+                    badgeHTML = `<span class="badge badge-special">${dayData.type}</span>`;
                 } else if (dayData.in && dayData.out) {
                     workingDaysCount++;
                     const hoursWorked = timeToHours(dayData.out) - timeToHours(dayData.in);
-                    displayTime = `${dayData.in} - ${dayData.out}`;
+                    displayTime = `${dayData.in} — ${dayData.out}`;
 
                     if (hoursWorked >= STANDARD_HOURS) {
                         dayNormal = STANDARD_HOURS;
@@ -296,10 +364,12 @@
                         if (extra > 0) {
                             dayExtra125 = Math.min(extra, 2);
                             dayExtra150 = Math.max(0, extra - 2);
+                            badgeHTML = `<span class="badge badge-extra">+${(dayExtra125 + dayExtra150).toFixed(1)}h</span>`;
                         }
                     } else {
                         dayNormal = hoursWorked;
                         dayDeficit = STANDARD_HOURS - hoursWorked;
+                        badgeHTML = `<span class="badge badge-deficit">-${dayDeficit.toFixed(1)}h</span>`;
                     }
                 }
 
@@ -308,37 +378,32 @@
                 totalExtra150 += dayExtra150;
                 totalDeficit += dayDeficit;
 
-                // הוספה לרשימת היסטוריה בתצוגה
-                const formattedDate = new Date(date).toLocaleDateString('he-IL', {day: 'numeric', month: 'numeric'});
+                const formattedDate = new Date(date).toLocaleDateString('en-US', {day: 'numeric', month: 'short'});
                 const item = document.createElement('div');
                 item.className = 'history-item';
                 item.innerHTML = `
-                    <div><strong>${formattedDate}</strong> (${displayTime})</div>
-                    <div class="history-tags">
-                        ${dayExtra125 + dayExtra150 > 0 ? `<span class="tag-extra">+${(dayExtra125+dayExtra150).toFixed(1)}</span>` : ''}
-                        ${dayDeficit > 0 ? `<span class="tag-def">-${dayDeficit.toFixed(1)}</span>` : ''}
+                    <div>
+                        <div class="history-date">${formattedDate}</div>
+                        <div class="history-time">${displayTime}</div>
                     </div>
+                    <div>${badgeHTML}</div>
                 `;
                 historyList.appendChild(item);
             });
 
-            // חישוב שכר שעתי נגזר (לפי חוק שעות עבודה ממוצע בישראל העומד על 182 שעות חודשיות)
             const hourlyRate = config.baseSalary / 182;
-            
             const extraPay = (totalExtra125 * hourlyRate * 1.25) + (totalExtra150 * hourlyRate * 1.5);
             const deficitDeduction = totalDeficit * hourlyRate;
             const travelPay = workingDaysCount * config.travel;
             
             const estimatedGross = config.baseSalary + extraPay - deficitDeduction + travelPay;
 
-            // עדכון דשבורד
             document.getElementById('dash-normal').innerText = totalNormal.toFixed(1);
             document.getElementById('dash-extra').innerText = (totalExtra125 + totalExtra150).toFixed(1);
             document.getElementById('dash-deficit').innerText = totalDeficit.toFixed(1);
             document.getElementById('dash-gross').innerText = `₪${Math.round(estimatedGross).toLocaleString()}`;
         }
 
-        // הפעלה ראשונית
         updateTodayStatus();
         calculateMonth();
     </script>
