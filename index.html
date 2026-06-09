@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>מעקב שעות עבודה</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="שעות עבודה">
+    
+    <style>
+        :root {
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-color: #1c1c1e;
+            --text-secondary: #8e8e93;
+            --primary: #007aff;
+            --success: #34c759;
+            --danger: #ff3b30;
+            --warning: #ff9500;
+            --border: #e5e5ea;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #000000;
+                --card-bg: #1c1c1e;
+                --text-color: #ffffff;
+                --text-secondary: #8e8e93;
+                --primary: #0a84ff;
+                --success: #30d158;
+                --danger: #ff453a;
+                --warning: #ff9f0a;
+                --border: #38383a;
+            }
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px 16px 140px 16px;
+            direction: rtl;
+        }
+
+        h2, h3 { margin-top: 0; font-weight: 600; }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+        .btn:active { opacity: 0.7; }
+        .btn-success { background-color: var(--success); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-secondary { background-color: var(--text-secondary); color: white; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+        .input-group input {
+            width: 100%; padding: 10px; border: 1px solid var(--border);
+            border-radius: 8px; background: var(--bg-color); color: var(--text-color); font-size: 16px;
+        }
+
+        /* Dashboard Footer */
+        .footer-dashboard {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border);
+            padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px; text-align: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        .dash-item .val { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+        .dash-item .lbl { font-size: 11px; color: var(--text-secondary); }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+
+        /* History list */
+        .history-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-tags span {
+            font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-right: 4px; color: white;
+        }
+        .tag-normal { background-color: var(--primary); }
+        .tag-extra { background-color: var(--success); }
+        .tag-def { background-color: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <!-- מסך ראשי: דיווח נוכחי -->
+    <div class="card">
+        <h2 id="current-date">היום שלי</h2>
+        <div class="grid-2">
+            <button class="btn btn-success" onclick="logAction('in')">📥 נכנסתי</button>
+            <button class="btn btn-danger" onclick="logAction('out')">📤 יצאתי</button>
+        </div>
+        <div class="grid-2">
+            <button class="btn btn-secondary" onclick="logSpecial('חופש')">🌴 יום חופש</button>
+            <button class="btn btn-secondary" onclick="logSpecial('מחלה')">🤒 יום מחלה</button>
+        </div>
+        <div id="today-status" style="text-align: center; margin-top: 10px; font-weight: 500;"></div>
+    </div>
+
+    <!-- עריכה ידנית / בדיעבד -->
+    <div class="card">
+        <h3>עדכון ידני / שינוי שעות</h3>
+        <div class="input-group">
+            <label>בחר תאריך</label>
+            <input type="date" id="edit-date">
+        </div>
+        <div class="grid-2">
+            <div class="input-group">
+                <label>שעת כניסה</label>
+                <input type="time" id="edit-in">
+            </div>
+            <div class="input-group">
+                <label>שעת יציאה</label>
+                <input type="time" id="edit-out">
+            </div>
+        </div>
+        <button class="btn" onclick="saveManual()">שמור עדכון</button>
+    </div>
+
+    <!-- הגדרות שכר -->
+    <div class="card">
+        <h3>הגדרות בסיס</h3>
+        <div class="grid-2">
+            <div class="input-group">
+                <label>שכר בסיס חודשי (₪)</label>
+                <input type="number" id="cfg-base-salary" value="15000" onchange="saveConfig()">
+            </div>
+            <div class="input-group">
+                <label>נסיעות ליום עבודה (₪)</label>
+                <input type="number" id="cfg-travel" value="25" onchange="saveConfig()">
+            </div>
+        </div>
+    </div>
+
+    <!-- היסטוריית החודש הנוכחי -->
+    <div class="card" style="margin-bottom: 40px;">
+        <h3>פירוט ימים השבוע/החודש</h3>
+        <div id="history-list"></div>
+    </div>
+
+    <!-- דשבורד תחתון קבוע -->
+    <div class="footer-dashboard">
+        <div class="dash-item">
+            <div class="val" id="dash-normal">0</div>
+            <div class="lbl">רגילות (ש')</div>
+        </div>
+        <div class="dash-item text-success">
+            <div class="val" id="dash-extra">0</div>
+            <div class="lbl">נוספות (ש')</div>
+        </div>
+        <div class="dash-item text-danger">
+            <div class="val" id="dash-deficit">0</div>
+            <div class="lbl">חוסר (ש')</div>
+        </div>
+        <div class="dash-item" style="border-right: 1px solid var(--border);">
+            <div class="val" id="dash-gross" style="color: var(--primary);">₪0</div>
+            <div class="lbl">ברוטו משוער</div>
+        </div>
+    </div>
+
+    <script>
+        const STANDARD_HOURS = 8.5;
+        let db = JSON.parse(localStorage.getItem('work_hours_db')) || {};
+        let config = JSON.parse(localStorage.getItem('work_hours_cfg')) || { baseSalary: 15000, travel: 25 };
+
+        // אתחול תצוגה
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'numeric' });
+        document.getElementById('edit-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('cfg-base-salary').value = config.baseSalary;
+        document.getElementById('cfg-travel').value = config.travel;
+
+        function saveConfig() {
+            config.baseSalary = parseFloat(document.getElementById('cfg-base-salary').value) || 0;
+            config.travel = parseFloat(document.getElementById('cfg-travel').value) || 0;
+            localStorage.setItem('work_hours_cfg', JSON.stringify(config));
+            calculateMonth();
+        }
+
+        function getTodayKey() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function logAction(type) {
+            const today = getTodayKey();
+            const now = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', hour12: false });
+            
+            if (!db[today]) db[today] = { in: '', out: '', type: 'עבודה' };
+            
+            db[today][type] = now;
+            db[today].type = 'עבודה';
+            
+            localStorage.setItem('work_hours_db', JSON.stringify(db));
+            updateTodayStatus();
+            calculateMonth();
+        }
+
+        function logSpecial(statusType) {
+            const today = getTodayKey();
+            db[today] = { in: '00:00', out: '00:00', type: statusType }; // מקבל יום מלא אוטומטית בלי חישוב שעות רגיל
+            localStorage.setItem('work_hours_db', JSON.stringify(db));
+            updateTodayStatus();
+            calculateMonth();
+        }
+
+        function saveManual() {
+            const date = document.getElementById('edit-date').value;
+            const timeIn = document.getElementById('edit-in').value;
+            const timeOut = document.getElementById('edit-out').value;
+            
+            if(!date) return;
+            
+            db[date] = { in: timeIn, out: timeOut, type: 'עבודה' };
+            localStorage.setItem('work_hours_db', JSON.stringify(db));
+            calculateMonth();
+            alert('הנתונים נשמרו בהצלחה');
+        }
+
+        function updateTodayStatus() {
+            const today = db[getTodayKey()];
+            const statusDiv = document.getElementById('today-status');
+            if (today) {
+                if (today.type !== 'עבודה') {
+                    statusDiv.innerHTML = `היום סומן כ: <span style="color:var(--primary)">${today.type}</span>`;
+                } else {
+                    statusDiv.innerHTML = `כניסה: ${today.in || '--:--'} | יציאה: ${today.out || '--:--'}`;
+                }
+            }
+        }
+
+        function timeToHours(timeStr) {
+            if (!timeStr) return 0;
+            const [hrs, mins] = timeStr.split(':').map(Number);
+            return hrs + (mins / 60);
+        }
+
+        function calculateMonth() {
+            let totalNormal = 0;
+            let totalExtra125 = 0;
+            let totalExtra150 = 0;
+            let totalDeficit = 0;
+            let workingDaysCount = 0;
+
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+
+            // מיון תאריכים מהחדש לישן
+            const sortedDates = Object.keys(db).sort((a,b) => new Date(b) - new Date(a));
+
+            sortedDates.forEach(date => {
+                const dayData = db[date];
+                let dayNormal = 0, dayExtra125 = 0, dayExtra150 = 0, dayDeficit = 0;
+                let displayTime = '';
+
+                if (dayData.type === 'חופש' || dayData.type === 'מחלה') {
+                    dayNormal = STANDARD_HOURS;
+                    displayTime = dayData.type;
+                } else if (dayData.in && dayData.out) {
+                    workingDaysCount++;
+                    const hoursWorked = timeToHours(dayData.out) - timeToHours(dayData.in);
+                    displayTime = `${dayData.in} - ${dayData.out}`;
+
+                    if (hoursWorked >= STANDARD_HOURS) {
+                        dayNormal = STANDARD_HOURS;
+                        let extra = hoursWorked - STANDARD_HOURS;
+                        if (extra > 0) {
+                            dayExtra125 = Math.min(extra, 2);
+                            dayExtra150 = Math.max(0, extra - 2);
+                        }
+                    } else {
+                        dayNormal = hoursWorked;
+                        dayDeficit = STANDARD_HOURS - hoursWorked;
+                    }
+                }
+
+                totalNormal += dayNormal;
+                totalExtra125 += dayExtra125;
+                totalExtra150 += dayExtra150;
+                totalDeficit += dayDeficit;
+
+                // הוספה לרשימת היסטוריה בתצוגה
+                const formattedDate = new Date(date).toLocaleDateString('he-IL', {day: 'numeric', month: 'numeric'});
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <div><strong>${formattedDate}</strong> (${displayTime})</div>
+                    <div class="history-tags">
+                        ${dayExtra125 + dayExtra150 > 0 ? `<span class="tag-extra">+${(dayExtra125+dayExtra150).toFixed(1)}</span>` : ''}
+                        ${dayDeficit > 0 ? `<span class="tag-def">-${dayDeficit.toFixed(1)}</span>` : ''}
+                    </div>
+                `;
+                historyList.appendChild(item);
+            });
+
+            // חישוב שכר שעתי נגזר (לפי חוק שעות עבודה ממוצע בישראל העומד על 182 שעות חודשיות)
+            const hourlyRate = config.baseSalary / 182;
+            
+            const extraPay = (totalExtra125 * hourlyRate * 1.25) + (totalExtra150 * hourlyRate * 1.5);
+            const deficitDeduction = totalDeficit * hourlyRate;
+            const travelPay = workingDaysCount * config.travel;
+            
+            const estimatedGross = config.baseSalary + extraPay - deficitDeduction + travelPay;
+
+            // עדכון דשבורד
+            document.getElementById('dash-normal').innerText = totalNormal.toFixed(1);
+            document.getElementById('dash-extra').innerText = (totalExtra125 + totalExtra150).toFixed(1);
+            document.getElementById('dash-deficit').innerText = totalDeficit.toFixed(1);
+            document.getElementById('dash-gross').innerText = `₪${Math.round(estimatedGross).toLocaleString()}`;
+        }
+
+        // הפעלה ראשונית
+        updateTodayStatus();
+        calculateMonth();
+    </script>
+</body>
+</html>
