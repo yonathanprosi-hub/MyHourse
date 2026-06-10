@@ -53,7 +53,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: calc(40px + env(safe-area-inset-top)) 20px calc(160px + env(safe-area-inset-bottom)) 20px;
+            padding: calc(40px + env(safe-area-inset-top)) 20px calc(180px + env(safe-area-inset-bottom)) 20px;
             letter-spacing: -0.015em;
         }
 
@@ -131,7 +131,7 @@
         }
         .input-group input:focus { border-color: var(--primary); }
 
-        /* Floating Dashboard */
+        /* Floating Dashboard - Fixed & Responsive */
         .footer-dashboard {
             position: fixed; 
             bottom: calc(16px + env(safe-area-inset-bottom)); 
@@ -142,22 +142,47 @@
             -webkit-backdrop-filter: var(--blur);
             border: 1px solid var(--card-border);
             border-radius: 24px;
-            padding: 16px;
+            padding: 14px 8px; 
             display: grid; 
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px; 
+            gap: 4px; 
             text-align: center; 
             box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            z-index: 9999;
         }
         .dash-item {
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
+            min-width: 0;
         }
-        .dash-item .val { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-        .dash-item .lbl { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+        .dash-item .val { 
+            font-size: 16px; 
+            font-weight: 700; 
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+        .dash-item .lbl { 
+            font-size: 10px; 
+            font-weight: 600; 
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
         .text-success { color: var(--success); }
         .text-danger { color: var(--danger); }
+
+        @media (max-width: 380px) {
+            .dash-item .val { font-size: 14px; }
+            .dash-item .lbl { font-size: 9px; }
+            .footer-dashboard { padding: 12px 4px; }
+        }
 
         /* History list */
         .history-item {
@@ -240,18 +265,18 @@
     <div class="footer-dashboard">
         <div class="dash-item">
             <div class="val" id="dash-normal">0</div>
-            <div class="lbl">Regular (h)</div>
+            <div class="lbl">Regular</div>
         </div>
         <div class="dash-item text-success">
             <div class="val" id="dash-extra">0</div>
-            <div class="lbl">Overtime (h)</div>
+            <div class="lbl">Overtime</div>
         </div>
         <div class="dash-item text-danger">
             <div class="val" id="dash-deficit">0</div>
-            <div class="lbl">Deficit (h)</div>
+            <div class="lbl">Deficit</div>
         </div>
-        <div class="dash-item" style="border-left: 1px solid var(--card-border); padding-left: 8px;">
-            <div class="val" id="dash-gross" style="color: var(--primary); font-size: 18px;">₪0</div>
+        <div class="dash-item" style="border-left: 1px solid var(--card-border); padding-left: 4px;">
+            <div class="val" id="dash-gross" style="color: var(--primary); font-size: 17px;">₪0</div>
             <div class="lbl">Est. Gross</div>
         </div>
     </div>
@@ -316,7 +341,7 @@
         function updateTodayStatus() {
             const today = db[getTodayKey()];
             const statusDiv = document.getElementById('today-status');
-            if (today) {
+            if (today && statusDiv) {
                 if (today.type !== 'Work') {
                     statusDiv.innerHTML = `Status: <span style="color:var(--primary)">${today.type}</span>`;
                 } else {
@@ -339,6 +364,7 @@
             let workingDaysCount = 0;
 
             const historyList = document.getElementById('history-list');
+            if (!historyList) return;
             historyList.innerHTML = '';
 
             const sortedDates = Object.keys(db).sort((a,b) => new Date(b) - new Date(a));
